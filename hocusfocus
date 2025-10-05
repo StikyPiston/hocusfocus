@@ -124,25 +124,6 @@ def print_report(totals, percentages, grand_total)
   puts "Total: #{format_duration(grand_total)}".colorize(:light_blue)
 end
 
-# def render_pie_chart(percentages)
-#   data = percentages.map { |k, v| "\"#{k}\" #{v}" }.join("\n")
-#   file = File.join(STATS_DIR, "pie_#{Time.now.to_i}.png")
-#   Open3.popen3("gnuplot") do |stdin, _, _, _|
-#     stdin.puts <<~GNUPLOT
-#       set terminal png size 600,400
-#       set output "#{file}"
-#       set title "Task Distribution"
-#       set style fill solid 1.0 border -1
-#       set key outside
-#       set datafile separator " "
-#       plot '-' using 2:xtic(1) with pie title columnheader
-#       #{data}
-#       e
-#     GNUPLOT
-#   end
-#   puts " Pie chart saved to #{file}"
-# end
-
 def render_bar_chart(totals)
   data = totals.map { |k, v| "\"#{k}\" #{(v / 3600.0).round(2)}" }.join("\n")
   file = File.join(STATS_DIR, "bar_#{Time.now.to_i}.png")
@@ -185,7 +166,6 @@ if ARGV.first == "data"
   print_report(totals, percentages, grand_total)
 
   if prompt.yes?("Generate charts?")
-    # render_pie_chart(percentages)
     render_bar_chart(totals)
   end
 
