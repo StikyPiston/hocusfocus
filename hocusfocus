@@ -17,7 +17,7 @@ prompt = TTY::Prompt.new
 # --- utilities ---
 
 def notify(message)
-  system("notify-send", "HocusFocus", message)
+  system("notify-send", " HocusFocus", message)
 end
 
 def next_session_file
@@ -110,7 +110,7 @@ def format_duration(seconds)
 end
 
 def print_report(totals, percentages, grand_total)
-  puts "\n=== HocusFocus Productivity Report ==="
+  puts "\n===   HocusFocus Productivity Report ==="
   totals.each do |task, secs|
     color = case task
             when "WORK" then :green
@@ -140,7 +140,7 @@ def render_pie_chart(percentages)
       e
     GNUPLOT
   end
-  puts "Pie chart saved to #{file}"
+  puts " Pie chart saved to #{file}"
 end
 
 def render_bar_chart(totals)
@@ -159,7 +159,7 @@ def render_bar_chart(totals)
       e
     GNUPLOT
   end
-  puts "Bar chart saved to #{file}"
+  puts " Bar chart saved to #{file}"
 end
 
 # --- main ---
