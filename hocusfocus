@@ -175,6 +175,11 @@ end
 # --- normal tracker flow ---
 session = latest_session_file && load_latest_session
 
+if ARGV.first == "stop"
+  stop_session(latest_session_file, session)
+  exit
+end
+
 if session && session["stop"].nil?
   start_time = Time.parse(session["start"])
   puts "You're currently doing #{session["task"].colorize(:cyan)} since #{start_time.strftime("%H:%M")}."
