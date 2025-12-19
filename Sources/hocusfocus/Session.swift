@@ -5,10 +5,4 @@ struct Session: Codable, Identifiable {
     let task: Task
     let start: Date
     let stop: Date?
-
-    var isActive: Bool { stop == nil }
-
-    var duration: TimeInterval {
-        (stop ?? Date()).timeIntervalSince(start)
-    }
 }
