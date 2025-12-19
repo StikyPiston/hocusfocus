@@ -2,6 +2,7 @@ import SwiftTUI
 import Foundation
 
 struct TrackerView: View {
+    let onShowStats: () -> Void
     let store = SessionStore()
     @State private var sessions: [Session] = []
 
@@ -82,6 +83,12 @@ struct TrackerView: View {
 
             Divider()
 
+            Button("Stats") {
+                sessions = store.loadSessions()
+                onShowStats()
+            }
+                .foregroundColor(.green)
+
             Button("Quit") {
                 exit(0)
             }
@@ -89,7 +96,7 @@ struct TrackerView: View {
         }
         .padding()
         .onAppear {
-            reloadSessions()
+            sessions = store.loadSessions()
         }
     }
 
