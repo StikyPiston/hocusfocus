@@ -2,17 +2,18 @@
 
 *Hocusfocus* is a terminal-based productivity tracker written in Ruby!,
 
-## Dependencies
+## Installation
 
-These dependencies can be installed with `gem`
+### Latest version
 
-- colorize
-- tty-prompt
+```shell
+brew install stikypiston/formulae/hocusfocus
+```
 
-Install with the following command
+### Legacy version (pre-rewrite)
 
-```bash
-gem install colorize tty-prompt
+```shell
+brew install stikypiston/formulae/hocusfocus@251025
 ```
 
 These dependencies can be installed with your package manager
