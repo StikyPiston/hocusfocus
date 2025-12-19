@@ -79,6 +79,13 @@ struct TrackerView: View {
                     }
                 }
             }
+
+            Divider()
+
+            Button("Quit") {
+                exit(0)
+            }
+                .foregroundColor(.green)
         }
         .padding()
         .onAppear {
