@@ -10,7 +10,8 @@ let package = Package(
     ],
     targets: [
         .executableTarget(
-            name: "hocusfocus"
+            name: "hocusfocus",
+            dependencies: ["SwiftTUI"]
         ),
     ]
 )
