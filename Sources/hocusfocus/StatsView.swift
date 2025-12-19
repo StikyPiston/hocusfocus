@@ -26,7 +26,7 @@ struct StatsView: View {
             ForEach(Task.allCases, id: \.self) { task in
                 HStack {
                     Text(task.rawValue)
-                        .foregroundColor(.brightBlue)
+                        .foregroundColor(.brightRed)
                     Spacer()
                     Text(durationString(totals[task]!))
                         .foregroundColor(.cyan)
