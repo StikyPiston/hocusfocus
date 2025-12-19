@@ -21,18 +21,23 @@ struct TrackerView: View {
             if let session = activeSession {
                 VStack(spacing: 1) {
                     Text("Currently tracking:")
+                        .foregroundColor(.green)
 
                     Text("\(session.task.rawValue)")
                         .bold()
+                        .foregroundColor(.brightWhite)
 
                     Text("Started at: \(session.start.formatted(.dateTime.hour().minute()))")
+                        .foregroundColor(.green)
 
                     Button("Stop") {
                         store.stopActive()
                         reloadSessions()
                     }
+                        .foregroundColor(.red)
 
                     Text("Or switch tasks:")
+                        .foregroundColor(.brightBlue)
 
                     ForEach(Task.allCases, id: \.self) { task in
                         if task != session.task {
@@ -40,6 +45,7 @@ struct TrackerView: View {
                                 store.start(task: task)
                                 reloadSessions()
                             }
+                                .foregroundColor(.cyan)
                         }
                     }
                 }
@@ -47,12 +53,14 @@ struct TrackerView: View {
                 VStack(spacing: 1) {
                     Text("What do you want to do?")
                         .bold()
+                        .foregroundColor(.brightBlue)
 
                     ForEach(Task.allCases, id: \.self) { task in
                         Button(task.rawValue) {
                             store.start(task: task)
                             reloadSessions()
                         }
+                            .foregroundColor(.cyan)
                     }
                 }
             }
