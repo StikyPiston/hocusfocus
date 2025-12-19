@@ -14,6 +14,7 @@ struct TrackerView: View {
             Text(" HocusFocus")
                 .bold()
                 .padding()
+                .foregroundColor(.blue)
 
             Divider()
 
