@@ -37,7 +37,7 @@ struct TrackerView: View {
                     }
                         .foregroundColor(.red)
 
-                    Text("Or switch tasks:")
+                    Text("Or switch session:")
                         .foregroundColor(.brightBlue)
 
                     ForEach(Task.allCases, id: \.self) { task in

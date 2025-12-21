@@ -42,9 +42,9 @@ let store = SessionStore()
 
 if CommandLine.arguments.dropFirst().contains("currenttask") {
     if let task = store.currentTask() {
-        print(" Current Task: \(task.rawValue)")
+        print(" Current Session: \(task.rawValue)")
     } else {
-        print(" No current task")
+        print(" No current session")
     }
 } else {
     Application(rootView: RootView()).start()
