@@ -31,4 +31,21 @@ struct RootView: View {
     }
 }
 
-Application(rootView: RootView()).start()
+extension SessionStore {
+    func currentTask() -> Task? {
+        let sessions = loadSessions()
+        return sessions.last(where: { $0.stop == nil })?.task
+    }
+}
+
+let store = SessionStore()
+
+if CommandLine.arguments.dropFirst().contains("currenttask") {
+    if let task = store.currentTask() {
+        print(" Current Task: \(task.rawValue)")
+    } else {
+        print(" No current task")
+    }
+} else {
+    Application(rootView: RootView()).start()
+}
