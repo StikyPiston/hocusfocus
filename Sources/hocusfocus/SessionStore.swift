@@ -31,7 +31,7 @@ final class SessionStore {
     }
 
     func start(task: Task) -> Session {
-        var sessions = loadSessions()
+        let sessions = loadSessions()
         if var last = sessions.last, last.stop == nil {
             last.stop = Date()
             saveSession(last)
@@ -44,7 +44,7 @@ final class SessionStore {
     }
 
     func stopActive() {
-        var sessions = loadSessions()
+        let sessions = loadSessions()
         if var last = sessions.last, last.stop == nil {
             last.stop = Date()
             saveSession(last)
