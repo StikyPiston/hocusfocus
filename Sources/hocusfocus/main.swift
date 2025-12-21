@@ -40,7 +40,7 @@ extension SessionStore {
 
 let store = SessionStore()
 
-if CommandLine.arguments.dropFirst().contains("currenttask") {
+if CommandLine.arguments.dropFirst().contains("currentsession") {
     if let task = store.currentTask() {
         print(" Current Session: \(task.rawValue)")
     } else {
