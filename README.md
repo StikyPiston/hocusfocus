@@ -1,19 +1,11 @@
 # Hocusfocus
 
-*Hocusfocus* is a terminal-based productivity tracker written in Ruby!,
+*Hocusfocus* is a terminal-based productivity tracker written in Swift!,
 
 ## Installation
 
-### Latest version
-
 ```shell
 brew install stikypiston/formulae/hocusfocus
-```
-
-### Legacy version (pre-rewrite)
-
-```shell
-brew install stikypiston/formulae/hocusfocus@251025
 ```
 
 ## Usage
