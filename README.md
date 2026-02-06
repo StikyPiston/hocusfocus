@@ -1,5 +1,9 @@
 # Hocusfocus
 
+> [!WARNING]
+> This is the old **Swift** version.
+> While you are free to use it, it will *not be supported* any further.
+
 *Hocusfocus* is a terminal-based productivity tracker written in Swift!,
 
 ## Installation
