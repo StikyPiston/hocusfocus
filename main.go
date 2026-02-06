@@ -1,10 +1,13 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -19,9 +22,84 @@ var (
 	selectedItemStyle = lipgloss.NewStyle().PaddingLeft(2).Foreground(lipgloss.Color("170"))
 	paginationStyle   = list.DefaultStyles().PaginationStyle.PaddingLeft(4)
 	helpStyle         = list.DefaultStyles().HelpStyle.PaddingLeft(4).PaddingBottom(1)
-	quitTextStyle     = lipgloss.NewStyle().Margin(1, 0, 2, 4)
 )
 
+// Session storage
+type Session struct {
+	Type  string     `json:"type"`
+	Start time.Time  `json:"start"`
+	End   *time.Time `json:"end"`
+}
+
+func storePath() string {
+	home, _ := os.UserHomeDir()
+	return filepath.Join(home, ".hocusfocus.json")
+}
+
+func loadSessions() []Session {
+	data, err := os.ReadFile(storePath())
+	if err != nil {
+		return []Session{}
+	}
+
+	var sessions []Session
+	_ = json.Unmarshal(data, &sessions)
+	return sessions
+}
+
+func saveSessions(sessions []Session) {
+	data, _ := json.MarshalIndent(sessions, "", "  ")
+	_ = os.WriteFile(storePath(), data, 0o644)
+}
+
+func currentSession(sessions []Session) *Session {
+	for i := range sessions {
+		if sessions[i].End == nil {
+			return &sessions[i]
+		}
+	}
+	return nil
+}
+
+// CLI commands
+func printStats() {
+	sessions := loadSessions()
+	totals := map[string]time.Duration{}
+
+	for _, s := range sessions {
+		if s.End == nil {
+			continue
+		}
+		totals[s.Type] += s.End.Sub(s.Start)
+	}
+
+	if len(totals) == 0 {
+		fmt.Println(" No sessions have been completed.")
+		return
+	}
+
+	for typ, d := range totals {
+		fmt.Printf("%s: %s\n", typ, d.Round(time.Second))
+	}
+}
+
+func printCurrentSession() {
+	sessions := loadSessions()
+	s := currentSession(sessions)
+
+	if s == nil {
+		fmt.Println(" No current session")
+		return
+	}
+
+	fmt.Printf(
+		"Current session: %s (%s)\n",
+		s.Type,
+		time.Since(s.Start).Round(time.Second),
+	)
+}
+
+// Bubbletea TUI
 type item string
 
 func (i item) FilterValue() string { return "" }
@@ -31,6 +109,7 @@ type itemDelegate struct{}
 func (d itemDelegate) Height() int                             { return 1 }
 func (d itemDelegate) Spacing() int                            { return 0 }
 func (d itemDelegate) Update(_ tea.Msg, _ *list.Model) tea.Cmd { return nil }
+
 func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
 	i, ok := listItem.(item)
 	if !ok {
@@ -51,8 +130,7 @@ func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list
 
 type model struct {
 	list     list.Model
-	choice   string
-	quitting bool
+	sessions []Session
 }
 
 func (m model) Init() tea.Cmd {
@@ -61,21 +139,41 @@ func (m model) Init() tea.Cmd {
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+
 	case tea.WindowSizeMsg:
 		m.list.SetWidth(msg.Width)
 		return m, nil
 
 	case tea.KeyMsg:
-		switch keypress := msg.String(); keypress {
+		switch msg.String() {
+
 		case "q", "ctrl+c":
-			m.quitting = true
 			return m, tea.Quit
 
 		case "enter":
 			i, ok := m.list.SelectedItem().(item)
-			if ok {
-				m.choice = string(i)
+			if !ok {
+				return m, nil
 			}
+
+			now := time.Now()
+
+			// End active session if one exists
+			for idx := range m.sessions {
+				if m.sessions[idx].End == nil {
+					m.sessions[idx].End = &now
+					break
+				}
+			}
+
+			// Start new session
+			m.sessions = append(m.sessions, Session{
+				Type:  string(i),
+				Start: now,
+				End:   nil,
+			})
+
+			saveSessions(m.sessions)
 			return m, tea.Quit
 		}
 	}
@@ -90,6 +188,17 @@ func (m model) View() string {
 }
 
 func main() {
+	if len(os.Args) > 1 {
+		switch os.Args[1] {
+		case "stats":
+			printStats()
+			return
+		case "currentsession":
+			printCurrentSession()
+			return
+		}
+	}
+
 	items := []list.Item{
 		item("Work"),
 		item("Study"),
@@ -106,10 +215,13 @@ func main() {
 	l.Styles.PaginationStyle = paginationStyle
 	l.Styles.HelpStyle = helpStyle
 
-	m := model{list: l}
+	m := model{
+		list:     l,
+		sessions: loadSessions(),
+	}
 
 	if _, err := tea.NewProgram(m).Run(); err != nil {
-		fmt.Println("Error running program:", err)
+		fmt.Println("Error:", err)
 		os.Exit(1)
 	}
 }
