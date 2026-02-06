@@ -88,12 +88,12 @@ func printCurrentSession() {
 	s := currentSession(sessions)
 
 	if s == nil {
-		fmt.Println(" No current session")
+		fmt.Println(" No current session")
 		return
 	}
 
 	fmt.Printf(
-		"Current session: %s (%s)\n",
+		" Current session: %s (%s)\n",
 		s.Type,
 		time.Since(s.Start).Round(time.Second),
 	)
