@@ -104,6 +104,10 @@ type item string
 
 func (i item) FilterValue() string { return "" }
 
+type stopItem struct{}
+
+func (s stopItem) FilterValue() string { return "" }
+
 type itemDelegate struct{}
 
 func (d itemDelegate) Height() int                             { return 1 }
@@ -111,12 +115,15 @@ func (d itemDelegate) Spacing() int                            { return 0 }
 func (d itemDelegate) Update(_ tea.Msg, _ *list.Model) tea.Cmd { return nil }
 
 func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
-	i, ok := listItem.(item)
-	if !ok {
+	var str string
+	switch i := listItem.(type) {
+	case item:
+		str = fmt.Sprintf("%d. %s", index+1, string(i))
+	case stopItem:
+		str = fmt.Sprintf("%d. %s", index+1, "Stop current session")
+	default:
 		return
 	}
-
-	str := fmt.Sprintf("%d. %s", index+1, i)
 
 	fn := itemStyle.Render
 	if index == m.Index() {
@@ -151,30 +158,42 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 
 		case "enter":
-			i, ok := m.list.SelectedItem().(item)
-			if !ok {
+			i := m.list.SelectedItem()
+			if i == nil {
 				return m, nil
 			}
 
 			now := time.Now()
 
-			// End active session if one exists
-			for idx := range m.sessions {
-				if m.sessions[idx].End == nil {
-					m.sessions[idx].End = &now
-					break
+			switch v := i.(type) {
+			case stopItem:
+				// Stop session
+				for idx := range m.sessions {
+					if m.sessions[idx].End == nil {
+						m.sessions[idx].End = &now
+						break
+					}
 				}
+				saveSessions(m.sessions)
+				return m, tea.Quit
+
+			case item:
+				// End active session if one exists
+				for idx := range m.sessions {
+					if m.sessions[idx].End == nil {
+						m.sessions[idx].End = &now
+						break
+					}
+				}
+				// Start new session
+				m.sessions = append(m.sessions, Session{
+					Type:  string(v),
+					Start: now,
+					End:   nil,
+				})
+				saveSessions(m.sessions)
+				return m, tea.Quit
 			}
-
-			// Start new session
-			m.sessions = append(m.sessions, Session{
-				Type:  string(i),
-				Start: now,
-				End:   nil,
-			})
-
-			saveSessions(m.sessions)
-			return m, tea.Quit
 		}
 	}
 
@@ -187,6 +206,23 @@ func (m model) View() string {
 	return "\n" + m.list.View()
 }
 
+// Build list
+func buildItems(sessions []Session) []list.Item {
+	items := []list.Item{
+		item("Work"),
+		item("Study"),
+		item("Waste"),
+	}
+
+	if currentSession(sessions) != nil {
+		// Prepend Stop item if a session is active
+		items = append([]list.Item{stopItem{}}, items...)
+	}
+
+	return items
+}
+
+// Main function
 func main() {
 	if len(os.Args) > 1 {
 		switch os.Args[1] {
@@ -199,11 +235,8 @@ func main() {
 		}
 	}
 
-	items := []list.Item{
-		item("Work"),
-		item("Study"),
-		item("Waste"),
-	}
+	sessions := loadSessions()
+	items := buildItems(sessions)
 
 	const defaultWidth = 20
 
@@ -217,7 +250,7 @@ func main() {
 
 	m := model{
 		list:     l,
-		sessions: loadSessions(),
+		sessions: sessions,
 	}
 
 	if _, err := tea.NewProgram(m).Run(); err != nil {
