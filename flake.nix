@@ -24,7 +24,7 @@
 
         packages.hocusfocus = pkgs.buildGoModule {
           pname = "hocusfocus";
-          version = "2026.01.29-a";
+          version = "2026.02.06-a";
 
           src = self;
 
@@ -34,7 +34,7 @@
           ldflags = [ "-s" "-w" ];
 
           meta = with pkgs.lib; {
-            description = "A simple, flexible symlink farm tool";
+            description = "A simple TUI productivity tool";
             license = licenses.mit;
             platforms = platforms.linux;
           };
@@ -42,7 +42,7 @@
 
         apps.hocusfocus = {
           type = "app";
-          program = "${self.packages.${system}.hocusfocus}/bin/dotkeeper";
+          program = "${self.packages.${system}.hocusfocus}/bin/hocusfocus";
         };
       });
 }
