@@ -1,6 +1,9 @@
 # Hocusfocus
 
-*Hocusfocus* is a terminal-based productivity tracker written in Swift!,
+> [!WARNING]
+> This is the experimental **Go** rewrite, it may not function correctly!
+
+*Hocusfocus* is a terminal-based productivity tracker written in Go!,
 
 ## Installation
 
