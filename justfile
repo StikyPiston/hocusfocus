@@ -2,4 +2,4 @@ build:
 	pkgx go build
 
 run:
-	pkgx go run
+	pkgx go run .
